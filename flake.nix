@@ -14,9 +14,16 @@
         (s: builtins.elem s [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ])
         (import inputs.systems);
 
-      perSystem = { pkgs, ... }: {
-        packages.default = pkgs.callPackage ./package.nix { };
-        packages.falkordb = pkgs.callPackage ./package.nix { };
-      };
+      perSystem = { system, ... }:
+        let
+          pkgs = import inputs.nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        in
+        {
+          packages.default = pkgs.callPackage ./package.nix { };
+          packages.falkordb = pkgs.callPackage ./package.nix { };
+        };
     };
 }
