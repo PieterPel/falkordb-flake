@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchurl, autoPatchelfHook }:
+{ lib, stdenv, fetchurl, autoPatchelfHook, openssl }:
 
 let
   version = "4.18.1";
@@ -36,7 +36,9 @@ stdenv.mkDerivation {
 
   # autoPatchelfHook scans for needed libs; add more here if FalkorDB
   # pulls in extra shared libraries on Linux.
-  buildInputs = lib.optionals stdenv.isLinux [ stdenv.cc.cc.lib ];
+  buildInputs =
+    lib.optionals stdenv.isLinux [ stdenv.cc.cc.lib ]
+    ++ lib.optionals stdenv.isDarwin [ openssl ];
 
   installPhase = ''
     runHook preInstall
@@ -44,6 +46,17 @@ stdenv.mkDerivation {
     cp $src $out/lib/falkordb.so
     chmod 755 $out/lib/falkordb.so
     runHook postInstall
+  '';
+
+  # The macOS binary has Homebrew openssl paths hardcoded; repoint them to the
+  # Nix store so the .so can be dlopen'd without Homebrew present.
+  postFixup = lib.optionalString stdenv.isDarwin ''
+    install_name_tool \
+      -change /opt/homebrew/opt/openssl@3/lib/libssl.3.dylib \
+              ${lib.getLib openssl}/lib/libssl.3.dylib \
+      -change /opt/homebrew/opt/openssl@3/lib/libcrypto.3.dylib \
+              ${lib.getLib openssl}/lib/libcrypto.3.dylib \
+      $out/lib/falkordb.so
   '';
 
   meta = {
