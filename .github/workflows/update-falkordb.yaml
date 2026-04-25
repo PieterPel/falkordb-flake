@@ -1,0 +1,46 @@
+name: update-falkordb
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *" # daily at 06:00 UTC
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Check for FalkorDB update
+        id: update
+        run: |
+          ./update.sh
+
+          version=$(grep -Po '(?<=version = ")[^"]+' package.nix)
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+          if git diff --quiet package.nix; then
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Pull Request
+        if: steps.update.outputs.updated == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore: update FalkorDB to v${{ steps.update.outputs.version }}"
+          branch: update-falkordb-${{ steps.update.outputs.version }}
+          title: "Update FalkorDB to v${{ steps.update.outputs.version }}"
+          body: |
+            Automated update of FalkorDB to [v${{ steps.update.outputs.version }}](https://github.com/FalkorDB/FalkorDB/releases/tag/v${{ steps.update.outputs.version }}).
+
+            Verify with:
+            ```
+            nix build
+            ```
+          labels: automated

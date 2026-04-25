@@ -59,6 +59,8 @@ stdenv.mkDerivation {
       $out/lib/falkordb.so
   '';
 
+  passthru.updateScript = ./update.sh;
+
   meta = {
     description = "FalkorDB graph database Redis module";
     longDescription = ''
