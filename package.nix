@@ -1,20 +1,20 @@
 { lib, stdenv, fetchurl, autoPatchelfHook, openssl }:
 
 let
-  version = "4.18.2";
+  version = "4.18.4";
 
   sources = {
     "aarch64-darwin" = {
       url = "https://github.com/FalkorDB/FalkorDB/releases/download/v${version}/falkordb-macos-arm64v8.so";
-      hash = "sha256-I3MqiO6hhPxVq00B8cr0Hxjbyev7Qy1NThi82TYzqXs=";
+      hash = "sha256-3Vx2d+BwXsfqZUEnr+PjoxJ5vDTXnu0B29SPD+wzaN0=";
     };
     "x86_64-linux" = {
       url = "https://github.com/FalkorDB/FalkorDB/releases/download/v${version}/falkordb-x64.so";
-      hash = "sha256-TTR+nPuBh7FDNbXrLRSx48wSfkh/vD2dlPUtHUT+wk4=";
+      hash = "sha256-tRLN8VYub8IY43AB0gZ3ovfJ4Vq+Mgk21mo4fzChQhw=";
     };
     "aarch64-linux" = {
       url = "https://github.com/FalkorDB/FalkorDB/releases/download/v${version}/falkordb-arm64v8.so";
-      hash = "sha256-Abn5jBmNMpSy+4KxYBGnj93zWD2CwrBszyJe9YStZpU=";
+      hash = "sha256-ByP7HIEIqM2izo7hP+52TTkk3Vqm1YB1WYnVp88HBqU=";
     };
   };
 
